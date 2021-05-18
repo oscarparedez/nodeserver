@@ -89,8 +89,6 @@
               display: 'flex',
             }
             const titleStyles = {
-              position: 'absolute',
-              top: '300px',
               fontSize: '50px',
               fontFamily: 'Noto Sans JP',
             }
@@ -121,7 +119,7 @@
                 alert('Please Enter Height')
                 return
               }
-              fetch(`https://nodeserver-oscarparedez.herokuapp.com/mazeG/?type=json&w=${width}&h=${height}`).then((r) => (r.json())).then((r) => (setMazeData(r)))
+              fetch(`https://oscarparedez.herokuapp.com/mazeG/?type=json&w=${width}&h=${height}`).then((r) => (r.json())).then((r) => (setMazeData(r)))
               setContMovimientos(0)
               setRotationX(-1)
               setRotationY(0)
@@ -237,7 +235,6 @@
             if (pantallaEstado === 1) {
               return (
                 <div style={menuBGStyle}>
-                  <h1 style={titleStyles}>Ayuda a Control a llegar a Woody</h1>
                   <input placeholder="Ancho" onChange={(event) => setWidth(event.target.value)} />
                   <input placeholder="Alto" onChange={(event) => setHeight(event.target.value)} />
                   <button type="button" style={btnStyles} onClick={eventoSubmit}>Jugar</button>
