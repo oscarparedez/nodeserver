@@ -1,0 +1,286 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <link rel="preconnect" href="https://fonts.gstatic.com"/>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700&display=swap" rel="stylesheet"/>
+        <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+        <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    </head>
+    <body>
+        <div id="root"></div>
+
+        <script type="text/babel">
+          let i = 0
+          let j = 0
+          const htmlRoot = document.getElementById('root')
+          const Wall = () => {
+            const style = {
+              width: '100px',
+              height: '100px',
+              backgroundImage: 'url("img/wall.png")',
+              backgroundSize: 'contain',
+              backgroundRepeat: 'no-repeat',
+            }
+            return <div style={style} />
+          }
+          const Goal = () => {
+            const style = {
+              width: '100px',
+              height: '100px',
+              backgroundImage: 'url("img/woody.png")',
+              backgroundSize: 'contain',
+              backgroundRepeat: 'no-repeat',
+            }
+            return <div style={style} />
+          }
+          const Player = ({ rotationX, rotationY }) => {
+            const style = {
+              width: '100px',
+              height: '100px',
+              backgroundImage: 'url("img/car.png")',
+              backgroundSize: 'contain',
+              transform: `scaleX(${rotationX}) rotate(${rotationY} deg)`,
+              backgroundRepeat: 'no-repeat',
+            }
+            return <div style={style} />
+          }
+          const Empty = () => {
+            const style = {
+              width: '100px',
+              height: '100px',
+              backgroundColor: 'white',
+            }
+            return <div style={style} />
+          }
+          const Maze = () => {
+            const [mazeData, setMazeData] = React.useState([])
+            const [pantallaEstado, setPantallaEstado] = React.useState(1)
+            const [width, setWidth] = React.useState(0)
+            const [height, setHeight] = React.useState(0)
+            const [contMovimientos, setContMovimientos] = React.useState(0)
+            const [rotationX, setRotationX] = React.useState(-1)
+            const [rotationY, setRotationY] = React.useState(1)
+
+            const mazeStyle = {
+              display: 'grid',
+              gridTemplateRow: `repeat(${height})`,
+              gridTemplateColumn: `repeat(${width}, auto)`,
+            }
+            const menuBGStyle = {
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%',
+              height: '100%',
+              background: 'url("img/menuBG.jpg") repeat-x center fixed',
+              backgroundSize: 'contain',
+            }
+            const endScreenStyle = {
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%',
+              height: '100%',
+              background: 'url("img/woodycontrol.png") no-repeat center fixed',
+              backgroundSize: 'contain',
+            }
+            const rowStyles = {
+              display: 'flex',
+            }
+            const titleStyles = {
+              position: 'absolute',
+              top: '300px',
+              fontSize: '50px',
+              fontFamily: 'Noto Sans JP',
+            }
+            const btnStyles = {
+              backgroundColor: '#f44336',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'white',
+              padding: '15px 32px',
+              textAlign: 'center',
+              textDecoration: 'none',
+              display: 'inline-block',
+              fontSize: '16px',
+              margin: '0px 15px',
+            }
+            const endTitleStyles = {
+              position: 'absolute',
+              top: '150px',
+              fontSize: '50px',
+              fontFamily: 'Noto Sans JP',
+            }
+            const eventoSubmit = () => {
+              if (width === 0) {
+                alert('Please Enter Width')
+                return
+              }
+              if (height === 0) {
+                alert('Please Enter Height')
+                return
+              }
+              fetch(`https://nodeserver-oscarparedez.herokuapp.com/mazeG/?type=json&w=${width}&h=${height}`).then((r) => (r.json())).then((r) => (setMazeData(r)))
+              setContMovimientos(0)
+              setRotationX(-1)
+              setRotationY(0)
+              setPantallaEstado(2)
+            }
+            const eventoRepeat = () => {
+              setPantallaEstado(1)
+            }
+            const handleKeyDown = (event) => {
+              if (event.key === 'ArrowRight') {
+                const mazeTemporal = [...mazeData]
+                let contador = 0
+                for (i = 0; i < mazeTemporal.length; i++) {
+                  for (j = 0; j < mazeTemporal[i].length; j++) {
+                    if (mazeTemporal[i][j] === 'p') {
+                      if ((mazeTemporal[i][j + 1] === ' ' || mazeTemporal[i][j + 1] === 'g') && contador === 0) {
+                        if (mazeTemporal[i][j + 1] === 'g') {
+                          setContMovimientos(contMovimientos + 1)
+                          setWidth(0)
+                          setHeight(0)
+                          setPantallaEstado(3)
+                        }
+                        setRotationX(-1)
+                        setRotationY(0)
+                        setContMovimientos(contMovimientos + 1)
+
+                        mazeTemporal[i][j + 1] = 'p'
+                        mazeTemporal[i][j] = ' '
+                        contador += 1
+                      }
+                    }
+                  }
+                }
+                setMazeData(mazeTemporal)
+              }
+              if (event.key === 'ArrowLeft') {
+                const mazeTemporal = [...mazeData]
+                let contador = 0
+                for (i = 0; i < mazeTemporal.length; i++) {
+                  for (j = 0; j < mazeTemporal[i].length; j++) {
+                    if (mazeTemporal[i][j] === 'p') {
+                      if ((mazeTemporal[i][j - 1] === ' ' || mazeTemporal[i][j - 1] === 'g') && contador === 0) {
+                        if (mazeTemporal[i][j - 1] === 'g') {
+                          setContMovimientos(contMovimientos + 1)
+                          setWidth(0)
+                          setHeight(0)
+                          setPantallaEstado(3)
+                        }
+                        setRotationX(1)
+                        setRotationY(0)
+                        setContMovimientos(contMovimientos + 1)
+                        mazeTemporal[i][j - 1] = 'p'
+                        mazeTemporal[i][j] = ' '
+                        contador += 1
+                      }
+                    }
+                  }
+                }
+                setMazeData(mazeTemporal)
+              }
+              if (event.key === 'ArrowUp') {
+                const mazeTemporal = [...mazeData]
+                let contador = 0
+                for (i = 0; i < mazeTemporal.length; i++) {
+                  for (j = 0; j < mazeTemporal[i].length; j++) {
+                    if (mazeTemporal[i][j] === 'p') {
+                      if ((mazeTemporal[i - 1][j] === ' ' || mazeTemporal[i - 1][j] === 'g') && contador === 0) {
+                        if (mazeTemporal[i - 1][j] === 'g') {
+                          setContMovimientos(contMovimientos + 1)
+                          setWidth(0)
+                          setHeight(0)
+                          setPantallaEstado(3)
+                        }
+                        setRotationX(-1)
+                        setRotationY(90)
+                        setContMovimientos(contMovimientos + 1)
+                        mazeTemporal[i - 1][j] = 'p'
+                        mazeTemporal[i][j] = ' '
+                        contador += 1
+                      }
+                    }
+                  }
+                }
+                setMazeData(mazeTemporal)
+              }
+              if (event.key === 'ArrowDown') {
+                const mazeTemporal = [...mazeData]
+                let contador = 0
+                for (i = 0; i < mazeTemporal.length; i++) {
+                  for (j = 0; j < mazeTemporal[i].length; j++) {
+                    if (mazeTemporal[i][j] === 'p') {
+                      if ((mazeTemporal[i + 1][j] === ' ' || mazeTemporal[i + 1][j] === 'g') && contador === 0) {
+                        if (mazeTemporal[i + 1][j] === 'g') {
+                          setContMovimientos(contMovimientos + 1)
+                          setWidth(0)
+                          setHeight(0)
+                          setPantallaEstado(3)
+                        }
+                        setRotationX(-1)
+                        setRotationY(-90)
+                        setContMovimientos(contMovimientos + 1)
+
+                        mazeTemporal[i + 1][j] = 'p'
+                        mazeTemporal[i][j] = ' '
+                        contador += 1
+                      }
+                    }
+                  }
+                }
+                setMazeData(mazeTemporal)
+              }
+            }
+            if (pantallaEstado === 1) {
+              return (
+                <div style={menuBGStyle}>
+                  <h1 style={titleStyles}>Ayuda a Control a llegar a Woody</h1>
+                  <input placeholder="Ancho" onChange={(event) => setWidth(event.target.value)} />
+                  <input placeholder="Alto" onChange={(event) => setHeight(event.target.value)} />
+                  <button type="button" style={btnStyles} onClick={eventoSubmit}>Jugar</button>
+                </div>
+              )
+            }
+            if (pantallaEstado === 2) {
+              return (
+                <div tabIndex="0" onKeyDown={handleKeyDown} style={mazeStyle} role="banner">
+                  {mazeData.map((row) => {
+                    return (
+                      <div style={rowStyles}>
+                        {row.map((cell) => {
+                          switch (cell) {
+                            case 'p':
+                              return <Player rotationX={rotationX} rotationY={rotationY} />
+                            case 'g':
+                              return <Goal />
+                            case ' ':
+                              return <Empty />
+                            default:
+                              return <Wall />
+                          }
+                        })}
+                      </div>
+                    )
+                  })}
+                </div>
+              )
+            }
+            if (pantallaEstado === 3) {
+              return (
+                <div style={endScreenStyle}>
+                  <h1 style={endTitleStyles}>Ganaste con {contMovimientos} Movimientos</h1>
+                  <button type="button" style={btnStyles} onClick={eventoRepeat}>Volver a Jugar</button>
+                </div>
+              )
+            }
+            return ''
+          }
+          ReactDOM.render(
+            <Maze />, htmlRoot,
+          )
+        </script>
+    </body>
+</html>
